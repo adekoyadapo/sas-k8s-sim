@@ -1,0 +1,7 @@
+services:
+  api:
+    environment:
+      - INSECURE_KUBE=false
+      - KUBECONFIG=/app/.kube/kubeconfig
+    volumes:
+      - ./kubeconfig.prod:/app/.kube/kubeconfig:ro

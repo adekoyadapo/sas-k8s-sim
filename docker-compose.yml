@@ -1,0 +1,48 @@
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_PASSWORD: example
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build: ./backend
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgresql+psycopg://postgres:example@db:5432/postgres
+      - JWT_SECRET=${JWT_SECRET:-dev-secret}
+      - CLUSTER_DOMAIN=${CLUSTER_DOMAIN:-10-0-10-253.sslip.io}
+      - KUBECONFIG=/app/.kube/kubeconfig
+      - INSECURE_KUBE=${INSECURE_KUBE:-true}
+    volumes:
+      - ./.kube-in-docker:/app/.kube:ro
+      - ./helm:/app/helm:ro
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build: ./frontend
+    depends_on:
+      - api
+    environment:
+      - NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8000}
+    ports:
+      - "3000:3000"
+
+volumes:
+  db_data:

@@ -1,0 +1,1 @@
+# Raw manifest fallback templates.

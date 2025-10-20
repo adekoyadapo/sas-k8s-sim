@@ -1,0 +1,44 @@
+# OS / Editor
+.DS_Store
+.idea/
+.vscode/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+.python-version
+
+# Node / Next.js
+node_modules/
+frontend/.next/
+frontend/.turbo/
+npm-debug.log*
+yarn-error.log*
+pnpm-lock.yaml
+
+# Build cache / artifacts
+dist/
+build/
+.cache/
+
+# Docker / Compose
+.docker/
+docker-compose.override.yml
+
+# Kubernetes / cluster env
+.kube-in-docker/
+.cluster.env
+
+# Environment files
+.env
+.env.*
+
+# Helm packaging
+*.tgz
+
+# Prompt/agent files (do not commit)
+PROMPT.md
+AGENTS.md

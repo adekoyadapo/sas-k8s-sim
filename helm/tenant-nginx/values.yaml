@@ -1,0 +1,29 @@
+nameOverride: ""
+namespace: ""
+host: ""
+image: nginx:alpine
+replicaCount: 1
+ingressClass: ""
+containerPort: 80
+servicePort: 80
+readiness:
+  path: "/"
+  initialDelaySeconds: 5
+docRootPath: "/usr/share/nginx/html"
+# Optional: inline index.html
+indexHtml: ""
+serverType: ""
+# Optional command override (array)
+command: []
+lifecycle:
+  postStart:
+    enabled: false
+    command: []
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 250m
+    memory: 256Mi
+replicaCount: 1

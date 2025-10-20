@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "tenant-nginx.fullname" . }}
+  labels:
+    app: {{ include "tenant-nginx.fullname" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "tenant-nginx.fullname" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "tenant-nginx.fullname" . }}
+    spec:
+      containers:
+        - name: web
+          image: {{ .Values.image }}
+          {{- if .Values.command }}
+          command: {{ toYaml .Values.command | nindent 10 }}
+          {{- end }}
+          ports:
+            - containerPort: {{ .Values.containerPort | default 80 }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.readiness.path | default "/" }}
+              port: {{ .Values.containerPort | default 80 }}
+            initialDelaySeconds: {{ .Values.readiness.initialDelaySeconds | default 5 }}
+            periodSeconds: 5
+            failureThreshold: 6
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          {{- if .Values.lifecycle.postStart.enabled }}
+          lifecycle:
+            postStart:
+              exec:
+                command: {{ toYaml .Values.lifecycle.postStart.command | nindent 16 }}
+          {{- end }}
+          {{- if .Values.indexHtml }}
+          volumeMounts:
+            - name: html
+              mountPath: {{ .Values.docRootPath | default "/usr/share/nginx/html" }}
+          {{- end }}
+      {{- if .Values.indexHtml }}
+      volumes:
+        - name: html
+          configMap:
+            name: {{ include "tenant-nginx.fullname" . }}-index
+      {{- end }}

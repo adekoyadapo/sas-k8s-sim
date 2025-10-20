@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "tenant-tomcat.fullname" . }}
+  labels:
+    app: {{ include "tenant-tomcat.fullname" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "tenant-tomcat.fullname" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "tenant-tomcat.fullname" . }}
+    spec:
+      containers:
+        - name: tomcat
+          image: {{ .Values.image }}
+          command: ["catalina.sh","run"]
+          ports:
+            - containerPort: {{ .Values.containerPort | default 8080 }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.readiness.path | default "/" }}
+              port: {{ .Values.containerPort | default 8080 }}
+            initialDelaySeconds: {{ .Values.readiness.initialDelaySeconds | default 20 }}
+            periodSeconds: 5
+            failureThreshold: 6
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - bash
+                  - -c
+                  - >-
+                    if [ ! -d /usr/local/tomcat/webapps/ROOT ]; then
+                      cp -r /usr/local/tomcat/webapps.dist/* /usr/local/tomcat/webapps/;
+                    fi
+

@@ -1,0 +1,7 @@
+apiVersion: v2
+name: tenant-tomcat
+description: Tomcat per-tenant app
+type: application
+version: 0.1.0
+appVersion: "9.0"
+

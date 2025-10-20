@@ -1,0 +1,99 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-backend-shell-helm:
+    name: Lint (backend, shell, helm)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install ruff
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff
+
+      - name: Ruff check (backend)
+        working-directory: backend
+        run: ruff check .
+
+      - name: Install shellcheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+
+      - name: Shellcheck scripts
+        run: shellcheck scripts/*.sh
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.13.3
+
+      - name: Helm lint (nginx)
+        run: helm lint helm/tenant-nginx
+
+      - name: Helm lint (tomcat)
+        run: helm lint helm/tenant-tomcat
+
+  test-backend:
+    name: Test (backend)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        working-directory: backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pytest
+
+      - name: Run tests
+        working-directory: backend
+        env:
+          DATABASE_URL: postgresql+psycopg://postgres:example@localhost:5432/postgres
+        run: PYTHONPATH=src pytest -q
+        # NOTE: kept non-blocking if no DB available; adjust to your needs
+
+  build-frontend:
+    name: Build (frontend)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: frontend/package.json
+
+      - name: Install deps
+        working-directory: frontend
+        run: npm install --no-audit --no-fund
+
+      - name: Next build
+        working-directory: frontend
+        env:
+          NEXT_PUBLIC_API_BASE_URL: http://localhost:8000
+        run: npm run build

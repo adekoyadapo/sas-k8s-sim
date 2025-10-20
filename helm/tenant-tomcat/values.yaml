@@ -1,0 +1,9 @@
+host: ""
+image: tomcat:9.0
+replicaCount: 1
+containerPort: 8080
+servicePort: 80
+readiness:
+  path: "/"
+  initialDelaySeconds: 20
+

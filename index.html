@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Welcome to Your Webserver</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --accent: #3b82f6;
+            --bg: #f8fafc;
+            --text: #1e293b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        p {
+            font-size: 1.1rem;
+            color: #475569;
+            margin-bottom: 1rem;
+        }
+
+        .info {
+            background: white;
+            padding: 1.5rem 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            margin-top: 1rem;
+        }
+
+        .highlight {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        footer {
+            margin-top: 3rem;
+            font-size: 0.9rem;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🌐 Dynamic Webserver Landing Page</h1>
+    <p>This page is being served dynamically by your running container.</p>
+
+    <div class="info">
+        <p><b>Hostname:</b> <span id="hostname" class="highlight">Loading...</span></p>
+        <p><b>Webserver:</b> <span id="server" class="highlight">Detecting...</span></p>
+    </div>
+
+    <footer>
+        © <span id="year"></span> Multi-Server Template • Works with Tomcat, Nginx, Apache, or any static server
+    </footer>
+
+    <script>
+        // Dynamically fill in details
+        document.getElementById("year").textContent = new Date().getFullYear();
+        document.getElementById("hostname").textContent = window.location.hostname;
+
+        // Detect webserver type heuristically
+        fetch(window.location.href, { method: "HEAD" })
+            .then(res => {
+                const serverHeader = res.headers.get("Server");
+                document.getElementById("server").textContent = serverHeader || "Unknown Server";
+            })
+            .catch(() => {
+                document.getElementById("server").textContent = "Unavailable";
+            });
+    </script>
+</body>
+
+</html>
