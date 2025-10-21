@@ -35,7 +35,7 @@ export default function HeaderClient() {
           {!auth && <a className="hover:underline" href="/login">Login</a>}
           {!auth && <a className="hover:underline" href="/register">Register</a>}
           {auth && <a className="hover:underline" href="/dashboard">Dashboard</a>}
-          {auth && <button className="btn-muted h-8 px-3" onClick={logout}>Logout{secs !== null && <span className="ml-2 text-xs text-gray-500">{secs}s</span>}</button>}
+          {auth && <button className="btn-muted h-8 px-3" onClick={logout}>Logout</button>}
           <ThemeToggle />
         </nav>
         <MobileDrawer auth={auth} onLogout={logout} />

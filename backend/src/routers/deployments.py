@@ -231,12 +231,19 @@ def scale_deployment(id: _uuid.UUID, payload: ScaleRequest, db: Session = Depend
     n = max(1, int(payload.replicas))
     st = (d.server_type or "nginx").lower()
 
-    image = "nginx:alpine"; port = 80
-    doc_root = "/usr/share/nginx/html"; readiness_path = "/"; readiness_delay = 5
+    image = "nginx:alpine"
+    port = 80
+    doc_root = "/usr/share/nginx/html"
+    readiness_path = "/"
+    readiness_delay = 5
     if st in ("apache", "httpd"):
-        image = "httpd:alpine"; port = 80; doc_root = "/usr/local/apache2/htdocs"
+        image = "httpd:alpine"
+        port = 80
+        doc_root = "/usr/local/apache2/htdocs"
     elif st == "tomcat":
-        image = "tomcat:9.0"; port = 8080; readiness_delay = 20
+        image = "tomcat:9.0"
+        port = 8080
+        readiness_delay = 20
     chart_dir = settings.helm_chart_path_tomcat if st == "tomcat" else settings.helm_chart_path
 
     if settings.helm_enabled:

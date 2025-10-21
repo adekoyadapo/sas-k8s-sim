@@ -13,9 +13,9 @@ cluster-down:
 up:
 	@if [ -f .cluster.env ]; then \
 		echo "Using .cluster.env"; \
-		docker compose --env-file .cluster.env up --build; \
+		docker compose --env-file .cluster.env up -d--build; \
 	else \
-		docker compose up --build; \
+		docker compose up -d --build; \
 	fi
 
 down:

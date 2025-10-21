@@ -10,13 +10,13 @@ NODES_JSON=$(kubectl get nodes -o jsonpath='{range .items[*]}{.metadata.name}{" 
 echo "$NODES_JSON" | grep -q 'Ready=True'
 
 echo "Checking ingress controller..."
-if kubectl -n kube-system get deploy -l app.kubernetes.io/name=traefik >/dev/null 2>&1; then
+name=$(kubectl -n kube-system get deploy -l app.kubernetes.io/name=traefik -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || true)
+if [[ -n "$name" ]]; then
   echo "Traefik detected (k3d/k3s)."
   INGRESS_CLASS=""
-  name=$(kubectl -n kube-system get deploy -l app.kubernetes.io/name=traefik -o jsonpath='{.items[0].metadata.name}')
   kubectl -n kube-system rollout status deploy/"$name" --timeout=180s
 else
-  echo "ingress-nginx detected."
+  echo "ingress-nginx detected (or Traefik not present)."
   INGRESS_CLASS="nginx"
   kubectl -n ingress-nginx get deploy ingress-nginx-controller
 fi

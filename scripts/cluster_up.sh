@@ -32,14 +32,25 @@ if [[ "${provider}" == "k3d" ]]; then
   echo "Waiting for Traefik to be ready..."
   # traefik is deployed in kube-system by k3s; wait for deployment to appear
   attempts=90
+  name=""
   while [ $attempts -gt 0 ]; do
-    if kubectl -n kube-system get deploy -l app.kubernetes.io/name=traefik >/dev/null 2>&1; then
+    name=$(kubectl -n kube-system get deploy -l app.kubernetes.io/name=traefik -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || true)
+    if [ -n "$name" ]; then
       break
     fi
     attempts=$((attempts-1))
     sleep 2
   done
-  name=$(kubectl -n kube-system get deploy -l app.kubernetes.io/name=traefik -o jsonpath='{.items[0].metadata.name}')
+  if [ -z "$name" ]; then
+    # Fallback: try the canonical name
+    if kubectl -n kube-system get deploy traefik >/dev/null 2>&1; then
+      name=traefik
+    else
+      echo "Traefik deployment not found in kube-system (k3d)." >&2
+      kubectl -n kube-system get deploy -l app.kubernetes.io/name=traefik || true
+      exit 1
+    fi
+  fi
   kubectl -n kube-system rollout status deploy/"$name" --timeout=180s
   echo "Cluster is up and Traefik is ready."
 else
