@@ -19,6 +19,7 @@ make cluster-validate  # deploys a test ingress and curls it until HTTP 200 OK
 cp .env.example .env
 make up                # builds and starts db, api, frontend
 ```
+Tip: run `make` to list available targets.
 
 Production profile (strict TLS)
 ```
@@ -47,9 +48,25 @@ make down             # stop containers, remove volumes
 make cluster-down     # delete the cluster
 make dev              # cluster-up + up
 make k3d-reset        # delete + recreate k3d with 80/443 exposed
-make k3d-resize AGENTS=3 [AGENT_CPU=2] [AGENT_MEM=2g]
+AGENTS=3 make k3d-resize        # optionally: AGENT_CPU=2 AGENT_MEM=2g
+make k3d-resize ARGS=-y         # accept defaults non-interactively
+ASSUME_YES=1 make k3d-resize    # equivalent to ARGS=-y
 make traefik-dashboard # dev-only: expose Traefik dashboard
 ```
+
+## k3d Agent Resizing
+- Purpose: adjust the number of k3d agent nodes (workers) in the local cluster.
+- Prerequisites: `k3d` and `kubectl` installed; default cluster name is `saas-sim` (set by `make cluster-up`).
+- Usage:
+  - `AGENTS=<count> [AGENT_CPU=<cpus>] [AGENT_MEM=<bytes|e.g., 2g>] [CLUSTER_NAME=<name>] make k3d-resize [ARGS='-y']`
+  - Examples:
+    - `AGENTS=3 make k3d-resize`
+    - `AGENTS=4 AGENT_CPU=2 AGENT_MEM=4g make k3d-resize`
+    - `CLUSTER_NAME=saas-sim AGENTS=2 make k3d-resize`
+- Verify: `kubectl get nodes -o wide`
+- Interactive defaults: If you omit `AGENTS` and run from a TTY, the script will show defaults (based on current agents) and ask if you want to proceed or customize values inline.
+ - Non-interactive defaults: Pass `ARGS=-y` (or env `ASSUME_YES=1`) to auto-accept defaults even when `AGENTS` isn’t set.
+
 
 ## Troubleshooting
 - If the dashboard hangs on “Waiting…”, run `make cluster-validate` to ensure ingress is healthy.
