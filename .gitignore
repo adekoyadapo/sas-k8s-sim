@@ -39,6 +39,7 @@ docker-compose.override.yml
 # Helm packaging
 *.tgz
 
+pages_index_3.tsx
 # Prompt/agent files (do not commit)
 PROMPT.md
 AGENTS.md

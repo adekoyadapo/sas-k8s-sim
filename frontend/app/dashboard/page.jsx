@@ -15,6 +15,7 @@ const API = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
 
 export default function Dashboard() {
   const [auth, setAuth] = useState(null);
+  const [userEmailPrefix, setUserEmailPrefix] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [serverType, setServerType] = useState('nginx');
   const [indexHtml, setIndexHtml] = useState("");
@@ -29,7 +30,20 @@ export default function Dashboard() {
   useEffect(() => {
     const t = getToken();
     setAuth(t);
-    if (t) refresh();
+    if (t) {
+      // Decode JWT to get email
+      try {
+        const [, payload] = t.access.split('.');
+        const decoded = JSON.parse(atob(payload));
+        if (decoded.sub) {
+          const emailPrefix = decoded.sub.split('@')[0];
+          setUserEmailPrefix(emailPrefix);
+        }
+      } catch (e) {
+        console.error('Failed to decode token:', e);
+      }
+      refresh();
+    }
     const id = setInterval(() => refresh(), 5000);
     return () => clearInterval(id);
   }, []);
@@ -157,10 +171,25 @@ export default function Dashboard() {
     <div className="card p-6"><p className="text-sm text-gray-600">Please login to view your dashboard.</p></div>
   );
 
+  const runningCount = list ? list.filter(d => d.status === 'READY' || stats[d.id]?.status === 'READY').length : 0;
+  const deployingCount = list ? list.filter(d => {
+    const status = stats[d.id]?.status || d.status;
+    return status === 'CREATING' || status === 'DEPLOYING';
+  }).length : 0;
+  const stoppedCount = list ? list.filter(d => {
+    const status = stats[d.id]?.status || d.status;
+    return status === 'STOPPED' || status === 'ERROR';
+  }).length : 0;
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-2xl font-semibold">Admin Dashboard</h1>
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            Dashboard{userEmailPrefix && ` - ${userEmailPrefix}`}
+          </h1>
+          <p className="text-gray-600 dark:text-gray-300 mt-2">Manage and monitor your deployments</p>
+        </div>
         <ConfirmDialog
           trigger={<button className="btn-muted">Delete Account</button>}
           title="Close Account"
@@ -171,7 +200,67 @@ export default function Dashboard() {
         />
       </div>
 
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Deployments</p>
+              <p className="text-3xl font-bold text-gray-900 dark:text-white">{list?.length || 0}</p>
+            </div>
+            <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900 rounded-lg flex items-center justify-center">
+              <svg className="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12v6a2 2 0 002 2h10a2 2 0 002-2v-6" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Running</p>
+              <p className="text-3xl font-bold text-green-600 dark:text-green-400">{runningCount}</p>
+            </div>
+            <div className="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
+              <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Deploying</p>
+              <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">{deployingCount}</p>
+            </div>
+            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
+              <svg className="animate-spin w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10" strokeWidth="4" className="opacity-25" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 12a8 8 0 018-8v8z" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Stopped/Error</p>
+              <p className="text-3xl font-bold text-gray-600 dark:text-gray-400">{stoppedCount}</p>
+            </div>
+            <div className="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+              <svg className="w-6 h-6 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="card p-6 space-y-4">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Create New Deployment</h2>
         <form onSubmit={createDeployment} className="grid grid-cols-1 gap-3">
           <input className="input" placeholder="Display name (e.g. Customer Web)" value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
           <select className="input" value={serverType} onChange={(e) => setServerType(e.target.value)}>
