@@ -6,10 +6,12 @@ import ConfirmDialog from "../../components/ConfirmDialog";
 import ProgressTimeline from "../../components/ProgressTimeline";
 import * as Tabs from "@radix-ui/react-tabs";
 import { toast } from "sonner";
-import { Check, AlertTriangle, Loader } from "lucide-react";
+import { Check, AlertTriangle, Loader, Copy, ExternalLink, Server } from "lucide-react";
 import * as Tooltip from "@radix-ui/react-tooltip";
 import LogStream from "../../components/LogStream";
 import { SkeletonList } from "../../components/Skeletons";
+import AnimatedCounter from "../../components/AnimatedCounter";
+import EmptyState from "../../components/EmptyState";
 
 const API = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
 
@@ -201,25 +203,37 @@ export default function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow"
+        >
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Deployments</p>
-              <p className="text-3xl font-bold text-gray-900 dark:text-white">{list?.length || 0}</p>
+              <p className="text-3xl font-bold text-gray-900 dark:text-white">
+                <AnimatedCounter value={list?.length || 0} />
+              </p>
             </div>
             <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900 rounded-lg flex items-center justify-center">
-              <svg className="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12v6a2 2 0 002 2h10a2 2 0 002-2v-6" />
-              </svg>
+              <Server className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow"
+        >
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Running</p>
-              <p className="text-3xl font-bold text-green-600 dark:text-green-400">{runningCount}</p>
+              <p className="text-3xl font-bold text-green-600 dark:text-green-400">
+                <AnimatedCounter value={runningCount} />
+              </p>
             </div>
             <div className="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
               <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -227,13 +241,20 @@ export default function Dashboard() {
               </svg>
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow"
+        >
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Deploying</p>
-              <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">{deployingCount}</p>
+              <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+                <AnimatedCounter value={deployingCount} />
+              </p>
             </div>
             <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
               <svg className="animate-spin w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -242,13 +263,20 @@ export default function Dashboard() {
               </svg>
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow"
+        >
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Stopped/Error</p>
-              <p className="text-3xl font-bold text-gray-600 dark:text-gray-400">{stoppedCount}</p>
+              <p className="text-3xl font-bold text-gray-600 dark:text-gray-400">
+                <AnimatedCounter value={stoppedCount} />
+              </p>
             </div>
             <div className="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
               <svg className="w-6 h-6 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -256,7 +284,7 @@ export default function Dashboard() {
               </svg>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
 
       <div className="card p-6 space-y-4">
@@ -299,16 +327,84 @@ export default function Dashboard() {
           {/* Content */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {list === null && <SkeletonList />}
+          {Array.isArray(list) && list.length === 0 && (
+            <EmptyState onCreateClick={() => {
+              const formElement = document.querySelector('form');
+              formElement?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              const inputElement = formElement?.querySelector('input');
+              setTimeout(() => inputElement?.focus(), 300);
+            }} />
+          )}
           {Array.isArray(list) && list.map((d) => (
-            <motion.div layout key={d.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="card p-4">
+            <motion.div
+              layout
+              key={d.id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              whileHover={{ y: -4 }}
+              className="card p-4 hover:shadow-lg transition-all duration-200"
+            >
               <div className="flex items-center justify-between">
-                <h2 className="font-medium">{d.display_name}</h2>
+                <div className="flex items-center gap-2">
+                  <ServerIcon type={d.server_type || 'nginx'} />
+                  <h2 className="font-medium">{d.display_name}</h2>
+                </div>
                 <StatusBadge status={deleteTimers[d.id] ? 'DELETING' : ((stats[d.id]?.status) || d.status)} />
               </div>
-              <div className="mt-1 text-xs text-gray-500">Server: <code>{d.server_type || 'nginx'}</code></div>
+              <div className="mt-1 text-xs text-gray-500">Server: <code className="bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded">{d.server_type || 'nginx'}</code></div>
               <div className="mt-2 text-sm">
-                <div className="text-gray-600">Namespace: <code>{d.namespace}</code></div>
-                <div className="truncate text-sky-700">URL: <a className="underline" href={`https://${d.ingress_host}`} target="_blank" rel="noreferrer">https://{d.ingress_host}</a></div>
+                <div className="text-gray-600 dark:text-gray-400">Namespace: <code className="bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded">{d.namespace}</code></div>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-xs text-gray-500">URL:</span>
+                  <div className="flex-1 flex items-center gap-1">
+                    <a
+                      className="truncate text-sky-700 dark:text-sky-400 underline text-xs flex-1"
+                      href={`https://${d.ingress_host}`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      https://{d.ingress_host}
+                    </a>
+                    <Tooltip.Provider>
+                      <Tooltip.Root>
+                        <Tooltip.Trigger asChild>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigator.clipboard.writeText(`https://${d.ingress_host}`);
+                              toast.success('URL copied to clipboard');
+                            }}
+                            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
+                          >
+                            <Copy className="w-3 h-3 text-gray-500" />
+                          </button>
+                        </Tooltip.Trigger>
+                        <Tooltip.Content sideOffset={6} className="rounded bg-gray-900 px-2 py-1 text-[11px] text-white shadow">
+                          Copy URL
+                        </Tooltip.Content>
+                      </Tooltip.Root>
+                    </Tooltip.Provider>
+                    <Tooltip.Provider>
+                      <Tooltip.Root>
+                        <Tooltip.Trigger asChild>
+                          <a
+                            href={`https://${d.ingress_host}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <ExternalLink className="w-3 h-3 text-gray-500" />
+                          </a>
+                        </Tooltip.Trigger>
+                        <Tooltip.Content sideOffset={6} className="rounded bg-gray-900 px-2 py-1 text-[11px] text-white shadow">
+                          Open in new tab
+                        </Tooltip.Content>
+                      </Tooltip.Root>
+                    </Tooltip.Provider>
+                  </div>
+                </div>
                 <div className="mt-1 text-xs text-gray-500">
                   {(() => { const s = stats[d.id] || {}; return (
                     <>
@@ -354,14 +450,38 @@ export default function Dashboard() {
               </div>
             </motion.div>
           ))}
-          {Array.isArray(list) && list.length === 0 && (
-            <div className="card p-6 text-sm text-gray-600">No deployments yet.</div>
-          )}
           </div>
         </motion.div>
       </AnimatePresence>
     </div>
   );
+}
+
+function ServerIcon({ type }) {
+  const icons = {
+    nginx: (
+      <div className="w-8 h-8 bg-green-100 dark:bg-green-900 rounded flex items-center justify-center">
+        <svg className="w-5 h-5 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 0L1 6v12l11 6 11-6V6L12 0zm7 16.5l-7 3.82-7-3.82v-9l7-3.82 7 3.82v9z"/>
+        </svg>
+      </div>
+    ),
+    apache: (
+      <div className="w-8 h-8 bg-red-100 dark:bg-red-900 rounded flex items-center justify-center">
+        <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 2L2 7v10l10 5 10-5V7l-10-5zm0 18.5l-8-4V8.5l8-4 8 4v8l-8 4z"/>
+        </svg>
+      </div>
+    ),
+    tomcat: (
+      <div className="w-8 h-8 bg-orange-100 dark:bg-orange-900 rounded flex items-center justify-center">
+        <svg className="w-5 h-5 text-orange-600 dark:text-orange-400" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+        </svg>
+      </div>
+    ),
+  };
+  return icons[type] || icons.nginx;
 }
 
 function StatusBadge({ status }) {
