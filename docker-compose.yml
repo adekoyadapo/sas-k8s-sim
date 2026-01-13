@@ -29,6 +29,8 @@ services:
       - CLUSTER_DOMAIN=${CLUSTER_DOMAIN:-10-0-10-253.sslip.io}
       - KUBECONFIG=/app/.kube/kubeconfig
       - INSECURE_KUBE=${INSECURE_KUBE:-true}
+      - ADMIN_USER=${ADMIN_USER:-admin}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin}
     volumes:
       - ./.kube-in-docker:/app/.kube:ro
       - ./helm:/app/helm:ro

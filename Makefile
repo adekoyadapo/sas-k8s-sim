@@ -7,10 +7,12 @@ help:
 	printf "  %-20s %s\n" \
 	  "cluster-up" "Create local cluster (k3d/kind detected)" \
 	  "cluster-validate" "Smoke test ingress connectivity" \
+	  "deploy" "Convenience: cluster-up + up" \
 	  "up" "Build and start db+api+frontend via compose" \
 	  "down" "Stop stack and remove volumes" \
 	  "dev" "Convenience: cluster-up + up" \
 	  "test-backend" "Run backend pytest suite" \
+	  "clean" "Convenience: cluster-down + down" \
 	  "shellcheck" "Lint scripts/*.sh" \
 	  "k3d-reset" "Recreate k3d cluster from scratch" \
 	  "k3d-resize" "Resize k3d agent nodes" \
@@ -29,6 +31,8 @@ cluster-validate:
 cluster-down:
 	./scripts/cluster_down.sh
 
+deploy: cluster-up up
+
 up:
 	@if [ -f .cluster.env ]; then \
 		echo "Using .cluster.env"; \
@@ -38,7 +42,7 @@ up:
 	fi
 
 down:
-	docker compose down -v
+	docker compose down -v --rmi all
 
 dev: cluster-up up
 
@@ -56,3 +60,6 @@ traefik-dashboard:
 
 k3d-resize:
 	bash ./scripts/k3d_resize.sh $(ARGS)
+
+clean: cluster-down down
+	@echo "Removing cluster and compose volumes"

@@ -13,6 +13,9 @@ class Settings(BaseSettings):
     helm_chart_path: str = "/app/helm/tenant-nginx"
     helm_chart_path_tomcat: str = "/app/helm/tenant-tomcat"
     insecure_kube: bool = True
+    # Admin credentials (for platform dashboard). Change these in production.
+    admin_user: str = "admin"
+    admin_password: str = "admin"
 
     model_config = {
         "env_prefix": "",

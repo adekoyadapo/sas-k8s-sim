@@ -42,6 +42,11 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 - Dev-only: the kubeconfig mounted into the API container disables TLS verification to allow connecting to `host.docker.internal`.
   - To use strict TLS, set `INSECURE_KUBE=false` (compose prod overlay) and mount a kubeconfig with valid certs.
 
+### Admin Dashboard
+- URL: http://localhost:3000/admin
+- Default login: username `admin`, password `admin` (set via `ADMIN_USER`, `ADMIN_PASSWORD`). Change these immediately in non-dev environments.
+- Shows: user count, deployment count, ingress readiness, node/namespace/pod counts, plus a tenant list with recent deployments. Toggle “Live K8s details” to enrich with readiness/replica data from the cluster.
+
 ## Common Commands
 ```
 make down             # stop containers, remove volumes

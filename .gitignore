@@ -7,6 +7,12 @@
 __pycache__/
 *.py[cod]
 *.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
 .venv/
 venv/
 .python-version
@@ -15,6 +21,8 @@ venv/
 node_modules/
 frontend/.next/
 frontend/.turbo/
+frontend/out/
+frontend/.vercel/
 npm-debug.log*
 yarn-error.log*
 pnpm-lock.yaml

@@ -394,3 +394,63 @@ def delete_namespace(name: str) -> None:
     except ApiException as e:
         if e.status != 404:
             raise
+
+
+def get_cluster_overview() -> dict:
+    """Return lightweight cluster stats suitable for an admin dashboard.
+    Avoids requiring metrics-server; focuses on object counts and readiness.
+    """
+    _load_kube()
+    core = client.CoreV1Api()
+    apps = client.AppsV1Api()
+    out: dict = {
+        "nodes": 0,
+        "namespaces": 0,
+        "tenant_namespaces": 0,
+        "tenant_namespace_list": [],
+        "pods": 0,
+        "tenant_pods": 0,
+        "ingress_ready": False,
+        "k8s_version": None,
+    }
+    try:
+        nodes = core.list_node().items
+        out["nodes"] = len(nodes)
+        try:
+            ver = core.get_code().git_version if hasattr(core, "get_code") else None
+        except Exception:
+            ver = None
+        out["k8s_version"] = ver
+    except Exception:
+        pass
+    try:
+        nss = core.list_namespace().items
+        out["namespaces"] = len(nss)
+        tenants = [n.metadata.name for n in nss if (n.metadata.name or "").startswith("tenant-")]
+        out["tenant_namespaces"] = len(tenants)
+        out["tenant_namespace_list"] = tenants[:200]
+    except Exception:
+        pass
+    try:
+        pods = core.list_pod_for_all_namespaces(limit=5000).items
+        out["pods"] = len(pods)
+        out["tenant_pods"] = sum(1 for p in pods if (p.metadata.namespace or "").startswith("tenant-"))
+    except Exception:
+        pass
+    try:
+        # Prefer Traefik (k3d/k3s), fall back to ingress-nginx
+        dep = None
+        try:
+            dep = apps.read_namespaced_deployment("traefik", "kube-system")
+        except Exception:
+            try:
+                dep = apps.read_namespaced_deployment("ingress-nginx-controller", "ingress-nginx")
+            except Exception:
+                dep = None
+        if dep is not None:
+            desired = dep.spec.replicas or 1
+            ready = dep.status.available_replicas or 0
+            out["ingress_ready"] = bool(ready >= desired)
+    except Exception:
+        pass
+    return out

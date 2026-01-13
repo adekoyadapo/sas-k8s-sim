@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { refreshIfNeeded, clearTokens } from "../lib/session";
 import ThemeToggle from "./ThemeToggle";
+import { getAdminToken } from "../lib/adminSession";
 import MobileDrawer from "./MobileDrawer";
 
 const API = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
@@ -23,6 +24,11 @@ export default function HeaderClient() {
     window.addEventListener('scroll', onScroll);
     return () => { clearInterval(id); clearInterval(tick); };
   }, []);
+  const [hasAdmin, setHasAdmin] = useState(false);
+  useEffect(() => {
+    // detect admin token presence
+    setHasAdmin(!!getAdminToken());
+  }, []);
   function logout() { clearTokens(); setAuth(null); window.location.href = "/"; }
   return (
     <header className={`sticky top-0 z-40 ${elev ? 'shadow-sm' : ''} border-b bg-white/80 backdrop-blur dark:border-gray-800 dark:bg-gray-950/70`}>
@@ -35,6 +41,7 @@ export default function HeaderClient() {
           {!auth && <a className="hover:underline" href="/login">Login</a>}
           {!auth && <a className="hover:underline" href="/register">Register</a>}
           {auth && <a className="hover:underline" href="/dashboard">Dashboard</a>}
+          <a className="hover:underline" href="/admin">Admin</a>
           {auth && <button className="btn-muted h-8 px-3" onClick={logout}>Logout</button>}
           <ThemeToggle />
         </nav>

@@ -22,13 +22,12 @@ def _jwt_encode(payload: dict[str, Any], ttl_minutes: int) -> str:
     payload = {**payload, "exp": exp}
     return jwt.encode(payload, settings.jwt_secret, algorithm=settings.jwt_algorithm)
 
+def create_access_token(sub: str, role: str = "user") -> str:
+    return _jwt_encode({"sub": sub, "type": "access", "role": role}, settings.access_token_ttl_minutes)
 
-def create_access_token(sub: str) -> str:
-    return _jwt_encode({"sub": sub, "type": "access"}, settings.access_token_ttl_minutes)
 
-
-def create_refresh_token(sub: str) -> str:
-    return _jwt_encode({"sub": sub, "type": "refresh"}, settings.refresh_token_ttl_minutes)
+def create_refresh_token(sub: str, role: str = "user") -> str:
+    return _jwt_encode({"sub": sub, "type": "refresh", "role": role}, settings.refresh_token_ttl_minutes)
 
 
 def decode_token(token: str) -> dict[str, Any]:
